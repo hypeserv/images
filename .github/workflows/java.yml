@@ -1,4 +1,7 @@
 name: build java
+permissions:
+  contents: read
+  packages: write
 on:
   workflow_dispatch:
   schedule:
@@ -33,6 +36,7 @@ jobs:
           - 23
           - 24
           - 25
+          - 26
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3
@@ -53,4 +57,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/pterodactyl/yolks:java_${{ matrix.tag }}
+            ghcr.io/hypeserv/images:java_${{ matrix.tag }}
