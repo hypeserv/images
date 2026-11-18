@@ -111,32 +111,28 @@ is tagged correctly.
     * `ghcr.io/hypeserv/images:java_26`
 
 * [`nodejs`](/nodejs)
-  * [`node12`](/nodejs/12)
-    * `ghcr.io/hypeserv/images:nodejs_12`
-  * [`node14`](/nodejs/14)
-    * `ghcr.io/hypeserv/images:nodejs_14`
-  * [`node15`](/nodejs/15)
-    * `ghcr.io/hypeserv/images:nodejs_15`
-  * [`node16`](/nodejs/16)
-    * `ghcr.io/hypeserv/images:nodejs_16`
-  * [`node17`](/nodejs/17)
-    * `ghcr.io/hypeserv/images:nodejs_17`
-  * [`node18`](/nodejs/18)
-    * `ghcr.io/hypeserv/images:nodejs_18`
   * [`node20`](/nodejs/20)
     * `ghcr.io/hypeserv/images:nodejs_20`
+  * [`node22`](/nodejs/22)
+    * `ghcr.io/hypeserv/images:nodejs_22`
+  * [`node24`](/nodejs/24)
+    * `ghcr.io/hypeserv/images:nodejs_24`
+  * [`node26`](/nodejs/26)
+    * `ghcr.io/hypeserv/images:nodejs_26`
 
 * [`python`](/python)
-  * [`python3.7`](/python/3.7)
-    * `ghcr.io/hypeserv/images:python_3.7`
-  * [`python3.8`](/python/3.8)
-    * `ghcr.io/hypeserv/images:python_3.8`
-  * [`python3.9`](/python/3.9)
-    * `ghcr.io/hypeserv/images:python_3.9`
   * [`python3.10`](/python/3.10)
     * `ghcr.io/hypeserv/images:python_3.10`
   * [`python3.11`](/python/3.11)
     * `ghcr.io/hypeserv/images:python_3.11`
+  * [`python3.12`](/python/3.12)
+    * `ghcr.io/hypeserv/images:python_3.12`
+  * [`python3.13`](/python/3.13)
+    * `ghcr.io/hypeserv/images:python_3.13`
+  * [`python3.14`](/python/3.14)
+    * `ghcr.io/hypeserv/images:python_3.14`
+  * [`python3.15`](/python/3.15)
+    * `ghcr.io/hypeserv/images:python_3.15`
 
 ### Installation Images
 

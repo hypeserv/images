@@ -20,7 +20,7 @@
 # SOFTWARE.
 #
 
-FROM        --platform=$TARGETOS/$TARGETARCH node:12-alpine
+FROM        --platform=$TARGETOS/$TARGETARCH node:24-alpine
 
 LABEL       author="Matthew Penner" maintainer="matthew@pterodactyl.io"
 
@@ -28,7 +28,7 @@ LABEL       org.opencontainers.image.source="https://github.com/hypeserv/images"
 LABEL       org.opencontainers.image.licenses=MIT
 
 RUN         apk add --update --no-cache ca-certificates curl ffmpeg git openssl sqlite tar tzdata \
-				&& adduser -D -h /home/container container
+	&& adduser -D -h /home/container container
 
 USER        container
 ENV         USER=container HOME=/home/container
