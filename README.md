@@ -44,6 +44,8 @@ is tagged correctly.
     * `ghcr.io/hypeserv/games:conan_exiles`
   * [`windrose`](/games/windrose)
     * `ghcr.io/hypeserv/games:windrose` (includes the [Windrose egg](/games/windrose/egg-windrose.json))
+  * [`valheim`](/games/valheim)
+    * `ghcr.io/hypeserv/games:valheim` (based on [parkervcp/yolks](https://github.com/parkervcp/yolks))
 
 * [`golang`](/go)
   * [`go1.14`](/go/1.14)
