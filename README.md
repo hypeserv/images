@@ -42,6 +42,8 @@ is tagged correctly.
     * `ghcr.io/hypeserv/games:hytale` (includes the [Hytale egg](/games/hytale/egg-hytale.json))
   * [`conan_exiles`](/games/conan_exiles)
     * `ghcr.io/hypeserv/games:conan_exiles`
+  * [`windrose`](/games/windrose)
+    * `ghcr.io/hypeserv/games:windrose` (includes the [Windrose egg](/games/windrose/egg-windrose.json))
 
 * [`golang`](/go)
   * [`go1.14`](/go/1.14)
