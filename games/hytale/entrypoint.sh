@@ -1,65 +1,99 @@
 #!/bin/bash
-set -e
+source "/egg-hytale/lib/utilities.sh"
+source "/egg-hytale/lib/authentication.sh"
+source "/egg-hytale/lib/system.sh"
+source "/egg-hytale/lib/downloader.sh"
+source "/egg-hytale/lib/plugins.sh"
 
-cd /home/container
+DOWNLOAD_URL="https://downloader.hytale.com/hytale-downloader.zip"
+PATCHLINE_CACHE_FILE=".patchline-cache.txt"
+DOWNLOAD_FILE="hytale-downloader.zip"
+DOWNLOADER_DIR="/egg-hytale/downloader"
+DOWNLOAD_CRED_FILE=".hytale-downloader-credentials.json"
+AUTH_CACHE_FILE=".hytale-auth-tokens.json"
+VERSION_FILE="version.txt"
+MODS_FOLDER="mods"
 
-# If HYTALE_SERVER_SESSION_TOKEN isn't set, assume the user will log in themselves, rather than a host's GSP
-if [[ -z "$HYTALE_SERVER_SESSION_TOKEN" ]]; then
+# Print the HypeServ banner
+printf "\033[1m\033[34m"
+cat <<'BANNER'
+    __  __                _____
+   / / / /_  ______  ___ / ___/___  ______   __
+  / /_/ / / / / __ \/ _ \\__ \/ _ \/ ___/ | / /
+ / __  / /_/ / /_/ /  __/__/ /  __/ /   | |/ /
+/_/ /_/\__, / .___/\___/____/\___/_/    |___/
+      /____/_/                   hypeserv.com
+BANNER
+printf "\033[0m\n"
 
-	echo -e "Checking for Hytale server update..."
+java -version
+echo " "
 
-	if [[ -f version ]]; then
-		curversion=$(./hytale-downloader/hytale-downloader-linux -patchline "$HYTALE_PATCHLINE" -print-version | tee /dev/tty)
-	fi
+# Initialize system
+detect_architecture
+setup_environment
 
-	if ! [[ -e version ]] || [ "$curversion" != "$(cat "version")" ]; then
-		if [[ -f version ]]; then
-			echo -e "New update available, downloading version $curversion..."
-		fi
+# Copy start.sh template to /home/container
+logger info "Copying start.sh template to /home/container..."
+cp -f /usr/local/bin/start.sh start.sh
+chmod 755 start.sh
 
-		./hytale-downloader/hytale-downloader-linux -patchline "$HYTALE_PATCHLINE" -download-path HytaleServer.zip
+setup_backup_directory
+ensure_downloader
 
-		# Write the current version if it wasn't set before
-		if [[ -z "$curversion" ]]; then
-			curversion=$(./hytale-downloader/hytale-downloader-linux -patchline "$HYTALE_PATCHLINE" -print-version | tee /dev/tty)
-		fi
+create_system_files
 
-		unzip -o HytaleServer.zip -d .
-		rm -f HytaleServer.zip
-		echo "$curversion" > version
-	fi
+ensure_system_file_permissions
 
-elif [[ -f "HytaleMount/HytaleServer.zip" ]]; then
-	unzip -o HytaleMount/HytaleServer.zip -d .
-elif [[ -f "HytaleMount/Assets.zip" ]]; then
-	ln -s -f HytaleMount/Assets.zip Assets.zip
-elif [[ -f "Server/Assets.zip" ]]; then
-	ln -s -f Server/Assets.zip Assets.zip
-elif [[ -f "HytaleServer.zip" ]]; then
-	unzip -o HytaleServer.zip -d .
+run_update_process
+validate_server_files
+install_sourcequery
+
+
+# Check if GSP mode (tokens provided externally)
+if [ -n "$OVERRIDE_SESSION_TOKEN" ] && [ -n "$OVERRIDE_IDENTITY_TOKEN" ]; then
+    logger info "Using provided session and identity tokens..."
+    SESSION_TOKEN="$OVERRIDE_SESSION_TOKEN"
+    IDENTITY_TOKEN="$OVERRIDE_IDENTITY_TOKEN"
+else
+    # Default to persistent authentication if not specified, this is needed for backwards combability
+    if [ -z "$USE_PERSISTENT_AUTHENTICATION" ]; then
+        USE_PERSISTENT_AUTHENTICATION="ENABLED"
+    fi
+
+    if [ "$USE_PERSISTENT_AUTHENTICATION" = "ENABLED" ]; then
+        # Standard mode: perform authentication
+        if check_cached_tokens && load_cached_tokens; then
+            logger info "Using cached authentication..."
+            if refresh_access_token; then
+                # Update cache in case refresh token rotated
+                save_auth_tokens
+                # Create fresh game session
+                if ! create_game_session; then
+                    exit 1
+                fi
+            else
+                # Refresh failed, need full re-auth
+                logger info "Refresh token expired, re-authenticating..."
+                rm -f "$AUTH_CACHE_FILE"
+                perform_authentication
+            fi
+        else
+            # Perform full authentication if no valid cache exists
+            perform_authentication
+        fi
+    fi
 fi
 
-# Download the latest hytale-sourcequery plugin if enabled
-if [ "${INSTALL_SOURCEQUERY_PLUGIN}" == "1" ]; then
-	mkdir -p mods
-	echo -e "Downloading latest hytale-sourcequery plugin..."
-	LATEST_URL=$(curl -sSL https://api.github.com/repos/physgun-com/hytale-sourcequery/releases/latest \
-		| grep -oP '"browser_download_url":\s*"\K[^"]+\.jar' || true)
-	if [[ -n "$LATEST_URL" ]]; then
-		curl -sSL -o mods/hytale-sourcequery.jar "$LATEST_URL"
-		echo -e "Successfully downloaded hytale-sourcequery plugin to mods folder."
-	else
-		echo -e "Warning: Could not find hytale-sourcequery plugin download URL."
-	fi
-fi
+# Export the session tokens so they're available to start.sh
+export SESSION_TOKEN
+export IDENTITY_TOKEN
 
-if [[ -f config.json && -n "$HYTALE_MAX_VIEW_RADIUS" ]]; then
-	jq ".MaxViewRadius = $HYTALE_MAX_VIEW_RADIUS" config.json > config.tmp.json && mv config.tmp.json config.json
-fi
+# Enforce file and folder permissions if enabled
+enforce_permissions
 
-if [[ "${HYTALE_NO_GSP_AUTH}" == "1" ]]; then
-	unset HYTALE_SERVER_SESSION_TOKEN
-	unset HYTALE_SERVER_IDENTITY_TOKEN
-fi
+logger info "Starting Hytale server..."
 
-/java.sh $@
+# Convert startup variables to from {{VARIABLE}} to ${VARIABLE} for the evaluating
+PARSED=$(echo "$STARTUP" | sed -e 's/{{/${/g' -e 's/}}/}/g')
+eval "$PARSED"

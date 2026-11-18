@@ -1,11 +1,14 @@
 name: build installers
+permissions:
+  contents: read
+  packages: write
 on:
   workflow_dispatch:
   schedule:
     - cron: "0 0 1 * *"
   push:
     branches:
-      - master
+      - main
     paths:
       - installers/**
 
@@ -13,7 +16,7 @@ on:
 
 jobs:
   pushMultiArch:
-    name: "yolks:installers_multiarch:${{ matrix.tag }}"
+    name: "images:installers_multiarch:${{ matrix.tag }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -42,10 +45,10 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/pterodactyl/installers:${{ matrix.tag }}
+            ghcr.io/hypeserv/installers:${{ matrix.tag }}
 
   pushAmd:
-    name: "yolks:installers_amd:${{ matrix.tag }}"
+    name: "images:installers_amd:${{ matrix.tag }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -70,4 +73,4 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            ghcr.io/pterodactyl/installers:${{ matrix.tag }}
+            ghcr.io/hypeserv/installers:${{ matrix.tag }}

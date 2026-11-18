@@ -1,16 +1,19 @@
 name: build python
+permissions:
+  contents: read
+  packages: write
 on:
   workflow_dispatch:
   schedule:
     - cron: "0 0 1 * *"
   push:
     branches:
-      - master
+      - main
     paths:
       - python/**
 jobs:
   push:
-    name: "yolks:python_${{ matrix.tag }}"
+    name: "images:python_${{ matrix.tag }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -42,4 +45,4 @@ jobs:
           platforms: linux/amd64, linux/arm64
           push: true
           tags: |
-            ghcr.io/pterodactyl/yolks:python_${{ matrix.tag }}
+            ghcr.io/hypeserv/images:python_${{ matrix.tag }}

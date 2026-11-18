@@ -1,16 +1,19 @@
 name: build nodejs
+permissions:
+  contents: read
+  packages: write
 on:
   workflow_dispatch:
   schedule:
     - cron: "0 0 1 * *"
   push:
     branches:
-      - master
+      - main
     paths:
-      - nodejs/*
+      - nodejs/**
 jobs:
   push:
-    name: "yolks:nodejs_${{ matrix.tag }}"
+    name: "images:nodejs_${{ matrix.tag }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -44,4 +47,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/pterodactyl/yolks:nodejs_${{ matrix.tag }}
+            ghcr.io/hypeserv/images:nodejs_${{ matrix.tag }}

@@ -8,12 +8,12 @@ on:
     - cron: "0 0 1 * *"
   push:
     branches:
-      - master
+      - main
     paths:
       - java/**
 jobs:
   push:
-    name: "yolks:java_${{ matrix.tag }}"
+    name: "images:java_${{ matrix.tag }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

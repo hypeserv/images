@@ -1,45 +1,71 @@
-#
-# Copyright (c) 2026 Pterodactyl
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-#
+# Use Eclipse Temurin JDK 25 on Ubuntu Noble as the base image
+FROM --platform=$TARGETOS/$TARGETARCH eclipse-temurin:25-jdk-noble
 
-FROM 		--platform=$TARGETOS/$TARGETARCH ghcr.io/pterodactyl/yolks:java_25
+# Metadata
+LABEL author="hypeserv" maintainer="info@hypeserv.com"
+LABEL org.opencontainers.image.source="https://github.com/hypeserv/images"
+LABEL org.opencontainers.image.description="Container for running hytale game servers"
+LABEL org.opencontainers.image.licenses=MIT
 
-LABEL       author="William V." maintainer="william.venner@infraly.co"
+# Switch to root user for installation
+USER root
 
-LABEL       org.opencontainers.image.source="https://github.com/pterodactyl/yolks"
-LABEL       org.opencontainers.image.licenses=MIT
+# Install necessary dependencies
+RUN apt update -y \
+	&& apt install -y \
+	curl \
+	lsof \
+	ca-certificates \
+	openssl \
+	git \
+	tar \
+	sqlite3 \
+	fontconfig \
+	tzdata \
+	iproute2 \
+	libfreetype6 \
+	tini \
+	zip \
+	unzip \
+	ncurses-bin \
+	jq
 
-USER		root
+# Copy start.sh to /usr/local/bin (protected location, won't be overridden by volume mounts)
+COPY --chmod=755 ./start.sh /usr/local/bin/start.sh
 
-COPY        --from=ghcr.io/pterodactyl/yolks:java_25 entrypoint.sh /java.sh
-RUN 		chmod +x /java.sh
+# Strip Windows line endings (\r) just in case the file was edited on Windows
+RUN sed -i 's/\r$//' /usr/local/bin/start.sh
 
-RUN			apt-get update -y \
-				&& apt-get install -y unzip jq \
-				&& rm -rf /var/lib/apt/lists/*
+# Copy entrypoint script to root
+COPY --chmod=755 ./entrypoint.sh /entrypoint.sh
 
+# Strip Windows line endings (\r) just in case the file was edited on Windows
+RUN sed -i 's/\r$//' /entrypoint.sh
+
+# Create egg-hytale folder
+RUN mkdir -p /egg-hytale
+
+# Copy lib directory
+COPY --chmod=755 ./lib /egg-hytale/lib
+RUN sed -i 's/\r$//' /egg-hytale/lib/*.sh
+
+# Create dmidecode shim for Docker usage
+COPY --chmod=755 ./lib/dmidecode /usr/local/bin/dmidecode
+RUN sed -i 's/\r$//' /usr/local/bin/dmidecode
+
+RUN sed -i 's/\r$//' /entrypoint.sh
+
+# Create the container user
+RUN useradd -m -d /home/container -s /bin/bash container
+
+# Switch to the container user
 USER        container
 ENV         USER=container HOME=/home/container
 WORKDIR     /home/container
 
-COPY 		./entrypoint.sh /entrypoint.sh
+# Ensure clean shutdown
+STOPSIGNAL SIGINT
 
-CMD         [ "/bin/bash", "/entrypoint.sh" ]
+# Use tini as init process to handle signals correctly
+ENTRYPOINT    ["/usr/bin/tini", "-g", "--"]
+CMD         ["/entrypoint.sh"]

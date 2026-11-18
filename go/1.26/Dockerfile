@@ -24,7 +24,7 @@ FROM        --platform=$TARGETOS/$TARGETARCH golang:1.26-alpine
 
 LABEL       author="Matthew Penner" maintainer="matthew@pterodactyl.io"
 
-LABEL       org.opencontainers.image.source="https://github.com/pterodactyl/yolks"
+LABEL       org.opencontainers.image.source="https://github.com/hypeserv/images"
 LABEL       org.opencontainers.image.licenses=MIT
 
 #hadolint ignore=DL3018

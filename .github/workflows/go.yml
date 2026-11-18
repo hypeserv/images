@@ -1,16 +1,19 @@
 name: build go
+permissions:
+  contents: read
+  packages: write
 on:
   workflow_dispatch:
   schedule:
     - cron: "0 0 1 * *"
   push:
     branches:
-      - master
+      - main
     paths:
       - go/**
 jobs:
   push:
-    name: "yolks:go_${{ matrix.tag }}"
+    name: "images:go_${{ matrix.tag }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -43,7 +46,7 @@ jobs:
       - uses: docker/metadata-action@v5
         id: meta
         with:
-          images: ghcr.io/pterodactyl/yolks
+          images: ghcr.io/hypeserv/images
           tags: |
             type=raw,value=go_${{ matrix.tag }}
             type=raw,value=go_latest,enable=${{ matrix.tag == '1.26' }}

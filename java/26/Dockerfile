@@ -23,7 +23,7 @@
 FROM        --platform=$TARGETOS/$TARGETARCH eclipse-temurin:26-jdk
 LABEL       author="HypeServ" maintainer="help@hypeserv.com"
 
-LABEL       org.opencontainers.image.source="https://github.com/hypeserv/yolks"
+LABEL       org.opencontainers.image.source="https://github.com/hypeserv/images"
 LABEL       org.opencontainers.image.licenses=MIT
 
 RUN 		    apt-get update -y \

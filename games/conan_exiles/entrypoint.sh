@@ -1,6 +1,7 @@
 #!/bin/bash
 
 #
+# Copyright (c) 2026 HypeServ
 # Copyright (c) 2021 Matthew Penner
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -35,6 +36,18 @@ export INTERNAL_IP
 
 # Switch to the container's working directory
 cd /home/container || exit 1
+
+# Print the HypeServ banner
+printf "\033[1m\033[34m"
+cat <<'BANNER'
+    __  __                _____
+   / / / /_  ______  ___ / ___/___  ______   __
+  / /_/ / / / / __ \/ _ \\__ \/ _ \/ ___/ | / /
+ / __  / /_/ / /_/ /  __/__/ /  __/ /   | |/ /
+/_/ /_/\__, / .___/\___/____/\___/_/    |___/
+      /____/_/                   hypeserv.com
+BANNER
+printf "\033[0m\n"
 
 # Set default values for steam if not provided
 STEAM_USER=${STEAM_USER:-anonymous}
@@ -148,7 +161,7 @@ fi
 
 # Replace Startup Variables
 MODIFIED_STARTUP=$(echo ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')
-echo -e ":/home/container$ ${MODIFIED_STARTUP}"
+printf "\033[1m\033[34m[HypeServ] $ \033[0m%s\n" "${MODIFIED_STARTUP}"
 
 # Run the Server
 eval ${MODIFIED_STARTUP}

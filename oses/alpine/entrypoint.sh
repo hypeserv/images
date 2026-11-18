@@ -1,4 +1,5 @@
 #!/bin/ash
+# Copyright (c) 2026 HypeServ
 # Copyright (c) 2021 Matthew Penner
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -31,6 +32,18 @@ export INTERNAL_IP
 # Switch to the container's working directory
 cd /home/container || exit 1
 
+# Print the HypeServ banner
+printf "\033[1m\033[34m"
+cat <<'BANNER'
+    __  __                _____
+   / / / /_  ______  ___ / ___/___  ______   __
+  / /_/ / / / / __ \/ _ \\__ \/ _ \/ ___/ | / /
+ / __  / /_/ / /_/ /  __/__/ /  __/ /   | |/ /
+/_/ /_/\__, / .___/\___/____/\___/_/    |___/
+      /____/_/                   hypeserv.com
+BANNER
+printf "\033[0m\n"
+
 # Convert all of the "{{VARIABLE}}" parts of the command into the expected shell
 # variable format of "${VARIABLE}" before evaluating the string and automatically
 # replacing the values.
@@ -38,7 +51,7 @@ PARSED=$(echo "${STARTUP}" | sed -e 's/{{/${/g' -e 's/}}/}/g' | eval echo "$(cat
 
 # Display the command we're running in the output, and then execute it with the env
 # from the container itself.
-printf "\033[1m\033[33mcontainer@pterodactyl~ \033[0m%s\n" "$PARSED"
+printf "\033[1m\033[34m[HypeServ] $ \033[0m%s\n" "$PARSED"
 # shellcheck disable=SC2086
 exec env ${PARSED}
 

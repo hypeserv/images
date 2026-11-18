@@ -24,7 +24,7 @@ FROM        --platform=$TARGETOS/$TARGETARCH eclipse-temurin:25-jdk
 
 LABEL       author="William V." maintainer="william.venner@infraly.co"
 
-LABEL       org.opencontainers.image.source="https://github.com/pterodactyl/yolks"
+LABEL       org.opencontainers.image.source="https://github.com/hypeserv/images"
 LABEL       org.opencontainers.image.licenses=MIT
 
 RUN 		apt-get update -y \
